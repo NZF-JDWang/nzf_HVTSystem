@@ -76,26 +76,71 @@ class CfgVehicles
 			class Units : Units
 			{
 				property = "nzf_fnc_hvt_units";
+				typeName = "OBJECT"; // Single object instead of group
 			};
 
+			// === BASIC INFO ===
+			class nzf_hvt_name : Edit
+			{
+				displayName = "HVT Name";
+				tooltip = "Custom name for the HVT unit (leave empty to keep original name)";
+				property = "nzf_Module_hvt_name";
+				defaultValue = """""";
+			};
+
+			// === AI BEHAVIOR ===
 			class nzf_surrender : Checkbox
 			{
-				displayName = "HVT will surrender";
-				tooltip = "HVT will surrender when comfronted";
+				displayName = "Will Surrender";
+				tooltip = "HVT will surrender when confronted by a player";
 				property = "nzf_Module_hvt_surrender";
 				defaultValue = "(false)";
 			};
+
+			class nzf_ai_behavior : Combo
+			{
+				displayName = "AI Behavior";
+				tooltip = "How the HVT should behave";
+				property = "nzf_Module_hvt_ai_behavior";
+				defaultValue = "''";
+				expression = "_this setVariable ['%s',_value,true];";
+				class Values
+				{
+					class static	{default = 1; name = "Static (No movement)"; value = "static"; };
+					class fleeing	{default = 0; name = "Fleeing (Runs when players close)"; value = "fleeing"; };
+				};
+			};
+
+			class nzf_flee_range : Edit
+			{
+				displayName = "Flee Detection Range (m)";
+				tooltip = "Range at which HVT starts fleeing (only used if AI Behavior is 'Fleeing')";
+				property = "nzf_Module_hvt_flee_range";
+				defaultValue = """25""";
+			};
+
+			class nzf_plot_armor : Checkbox
+			{
+				displayName = "Plot Armor (ACM)";
+				tooltip = "HVT will have plot armor and cannot be killed. REQUIRES ACM mod to be loaded to function.";
+				property = "nzf_Module_hvt_plot_armor";
+				defaultValue = "(false)";
+				condition = "isClass (configFile >> 'CfgPatches' >> 'ACM_main')";
+			};
+
+			// === SUICIDE VEST OPTIONS ===
 			class nzf_svest : Edit
 			{
-				displayName = "Class of S-Vest";
-				tooltip = "Add classname of vest to use, if empty no S-vest will be added";
+				displayName = "S-Vest Classname";
+				tooltip = "Classname of vest to use (leave as 'false' for no S-vest)";
 				property = "nzf_Module_hvt_svest";
 				defaultValue = """false"""; 
 			};
+
 			class nzf_svest_explosion : Combo
 			{
 				displayName = "Explosion Size";
-				tooltip = "Size of explosion - (requires S-Vest set above)";
+				tooltip = "Size of explosion when suicide vest detonates";
 				property = "nzf_Module_hvt_svest_explosion";
 				defaultValue = "''";
 				expression = "_this setVariable ['%s',_value,true];";
@@ -106,25 +151,35 @@ class CfgVehicles
 					class large_boom	{default = 0; name = "Large"; value = "R_60mm_HE"; };
 				};
 			};
+
 			class nzf_svest_range : Edit
 			{
-				displayName = "S-Vest Detonation Range (metres)";
-				tooltip = "Range (m) players need to be to set off vest - (requires S-Vest set above)";
+				displayName = "Detonation Range (m)";
+				tooltip = "Range in meters that players must be within to trigger the vest";
 				property = "nzf_Module_hvt_svest_range";
 				defaultValue = """5""";
 			};
+
 			class nzf_svest_time : Edit
 			{
-				displayName = "Detonation Delay";
+				displayName = "Detonation Delay (s)";
 				tooltip = "Seconds between trigger and explosion";
 				property = "nzf_Module_hvt_svest_time";
 				defaultValue = """2""";
 			};
 
+			class nzf_svest_fear_timeout : Edit
+			{
+				displayName = "Fear Timeout (s)";
+				tooltip = "Seconds after fear animation before auto-detonation (0 = disabled)";
+				property = "nzf_Module_hvt_svest_fear_timeout";
+				defaultValue = """6""";
+			};
+
 			class nzf_svest_scream : Checkbox
 			{
 				displayName = "Allahu Akbar";
-				tooltip = "HVT will scream Allahu Akbar before clacking off";
+				tooltip = "HVT will scream Allahu Akbar before detonating";
 				property = "nzf_Module_hvt_svest_scream";
 				defaultValue = "(false)";
 			};
@@ -132,9 +187,9 @@ class CfgVehicles
 			class nzf_svest_los : Checkbox
 			{
 				displayName = "Require Line of Sight";
-				tooltip = "If checked, vest will only trigger if HVT has line of sight to a player within range and on the same floor.";
+				tooltip = "Vest will only trigger if HVT has line of sight to a player";
 				property = "nzf_svest_los";
-				defaultValue = "(false)";
+				defaultValue = "(true)";
 			};
 
 			class ModuleDescription : ModuleDescription {}; // Module description should be shown last
@@ -173,6 +228,12 @@ class CfgFunctions
 			class hvtSetup {};
 			class svest {};
 			class createHVTZeusModule {};
+		class setupHVTFear {};
+		class setupSurrender {};
+		class setupSuicideVest {};
+		class setupHVTKilledEH {};
+		class addHVTDiaryEntry {};
+		class addHVTOcapEvent {};
 		};
 	};
 };
